@@ -138,6 +138,7 @@ public class DBTCPConnector implements DBConnector {
                 }
                 catch(Throwable e) {   
                     //ignore and retry
+                    _logger.warning("MONGO: Could not say something: " + e.getMessage());
                 }
             }
         }
@@ -227,6 +228,7 @@ public class DBTCPConnector implements DBConnector {
                 }
                 catch(Throwable e) {   
                     //ignore and retry
+                    _logger.warning("MONGO: Could not call something: " + e.getMessage());
                 }
             }
         }
