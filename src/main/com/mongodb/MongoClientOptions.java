@@ -40,6 +40,7 @@ public class MongoClientOptions {
      */
     public static class Builder {
 
+        private int commandRetries = 0;
         private String description;
         private int connectionsPerHost = 100;
         private int threadsAllowedToBlockForConnectionMultiplier = 5;
@@ -57,6 +58,18 @@ public class MongoClientOptions {
         private boolean cursorFinalizerEnabled = true;
         private boolean alwaysUseMBeans = false;
 
+        /**
+         * Sets the command retries.
+         *
+         * @param commandRetried the the number of times a command is retried before giving up
+         * @return {@code this}
+         * @see com.mongodb.MongoClientOptions#getCommandRetries()
+         */
+        public Builder commandRetries(final int commandRetries) {
+            this.commandRetries = commandRetries;
+            return this;
+        }
+        
         /**
          * Sets the description.
          *
@@ -318,6 +331,17 @@ public class MongoClientOptions {
     public static Builder builder() {
         return new Builder();
     }
+    
+    /**
+     * Gets the number of times a command should be retried for this MongoClient.
+     * <p/>
+     * Default is 0.
+     *
+     * @return the number of retries
+     */
+    public int getCommandRetries() {
+        return commandRetries;
+    }
 
     /**
      * Gets the description for this MongoClient, which is used in various places like logging and JMX.
@@ -562,6 +586,7 @@ public class MongoClientOptions {
     }
 
     private MongoClientOptions(final Builder builder) {
+        commandRetries = builder.commandRetries;
         description = builder.description;
         connectionsPerHost = builder.connectionsPerHost;
         threadsAllowedToBlockForConnectionMultiplier = builder.threadsAllowedToBlockForConnectionMultiplier;
@@ -580,7 +605,7 @@ public class MongoClientOptions {
         alwaysUseMBeans = builder.alwaysUseMBeans;
     }
 
-
+    private final int commandRetries;
     private final String description;
     private final int connectionsPerHost;
     private final int threadsAllowedToBlockForConnectionMultiplier;

@@ -39,6 +39,7 @@ public class MongoOptions {
      */
     @Deprecated
     public MongoOptions(final MongoClientOptions options) {
+        commandRetries = options.getCommandRetries();
         connectionsPerHost = options.getConnectionsPerHost();
         threadsAllowedToBlockForConnectionMultiplier = options.getThreadsAllowedToBlockForConnectionMultiplier();
         maxWaitTime = options.getMaxWaitTime();
@@ -59,6 +60,7 @@ public class MongoOptions {
     }
 
     public void reset(){
+        commandRetries = 0;
         connectionsPerHost = Bytes.CONNECTIONS_PER_HOST;
         threadsAllowedToBlockForConnectionMultiplier = 5;
         maxWaitTime = 1000 * 60 * 2;
@@ -85,6 +87,7 @@ public class MongoOptions {
 
     public MongoOptions copy() {
         MongoOptions m = new MongoOptions();
+        m.commandRetries = commandRetries;
         m.connectionsPerHost = connectionsPerHost;
         m.threadsAllowedToBlockForConnectionMultiplier = threadsAllowedToBlockForConnectionMultiplier;
         m.maxWaitTime = maxWaitTime;
@@ -132,6 +135,7 @@ public class MongoOptions {
 
         final MongoOptions options = (MongoOptions) o;
 
+        if (commandRetries != options.commandRetries) return false;
         if (autoConnectRetry != options.autoConnectRetry) return false;
         if (connectTimeout != options.connectTimeout) return false;
         if (connectionsPerHost != options.connectionsPerHost) return false;
@@ -166,6 +170,7 @@ public class MongoOptions {
     @Override
     public int hashCode() {
         int result = description != null ? description.hashCode() : 0;
+        result = 31 * result + commandRetries;
         result = 31 * result + connectionsPerHost;
         result = 31 * result + threadsAllowedToBlockForConnectionMultiplier;
         result = 31 * result + maxWaitTime;
@@ -188,6 +193,8 @@ public class MongoOptions {
         result = 31 * result + (writeConcern != null ? writeConcern.hashCode() : 0);
         return result;
     }
+    
+    public int commandRetries;
 
     /**
      * <p>The description for <code>Mongo</code> instances created with these options. This is used in various places like logging.</p>
@@ -355,6 +362,21 @@ public class MongoOptions {
      * </p>
      */
     public boolean alwaysUseMBeans;
+    
+    /**
+     * @return The commandRetries for <code>MongoClient</code> instances created with these options
+     */
+    public synchronized int getCommandRetries() {
+        return commandRetries;
+    }
+
+    /**
+     *
+     * @param desc The commandRetries for <code>Mongo</code> instances created with these options
+     */
+    public synchronized void setCommandRetries(int cr) {
+        commandRetries = cr;
+    }
 
     /**
      * @return The description for <code>MongoClient</code> instances created with these options
@@ -691,6 +713,7 @@ public class MongoOptions {
     public String toString() {
         return "MongoOptions{" +
                 "description='" + description + '\'' +
+                ", commandRetries=" + commandRetries +
                 ", connectionsPerHost=" + connectionsPerHost +
                 ", threadsAllowedToBlockForConnectionMultiplier=" + threadsAllowedToBlockForConnectionMultiplier +
                 ", maxWaitTime=" + maxWaitTime +

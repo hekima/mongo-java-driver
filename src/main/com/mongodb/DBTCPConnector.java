@@ -125,6 +125,25 @@ public class DBTCPConnector implements DBConnector {
      */
     @Override
     public WriteResult say( DB db , OutMessage m , WriteConcern concern , ServerAddress hostNeeded ){
+        int cretries = this._mongo.getMongoOptions().commandRetries;
+        while(true)
+        {
+            if(cretries <= 0) {
+                return innerSay(db, m, concern, hostNeeded);
+            }
+            else {
+                --cretries;
+                try {
+                    return innerSay(db, m, concern, hostNeeded);
+                }
+                catch(Throwable e) {   
+                    //ignore and retry
+                }
+            }
+        }
+    }
+
+    private WriteResult innerSay( DB db , OutMessage m , WriteConcern concern , ServerAddress hostNeeded ){
 
         if (concern == null) {
             throw new IllegalArgumentException("Write concern is null");
@@ -195,7 +214,22 @@ public class DBTCPConnector implements DBConnector {
      */
     @Override
     public Response call( DB db , DBCollection coll , OutMessage m , ServerAddress hostNeeded , int retries ){
-        return call( db, coll, m, hostNeeded, retries, null, null);
+        int cretries = this._mongo.getMongoOptions().commandRetries;
+        while(true)
+        {
+            if(cretries <= 0) {
+                return call( db, coll, m, hostNeeded, retries, null, null);
+            }
+            else {
+                --cretries;
+                try {
+                    return call( db, coll, m, hostNeeded, retries, null, null);
+                }
+                catch(Throwable e) {   
+                    //ignore and retry
+                }
+            }
+        }
     }
 
 
